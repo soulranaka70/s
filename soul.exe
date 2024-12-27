@@ -1,1 +1,1 @@
-gcc -o soulcracks.exe soulcracks.c -lws2_32
+clang -o soulcracks.exe soulcracks.c -lws2_32
