@@ -11,7 +11,7 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 loop = asyncio.new_event_loop()
 
-TOKEN = "7181284778:AAHx4HGGlun1oqoCI0zVWNRhxSlRdqY6lVE"
+TOKEN = "7031434586:AAGVY407Cpb80b-n0-EI1Abndzmw9nSUdpE"
 FORWARD_CHANNEL_ID = -1002232097214
 CHANNEL_ID = -1002232097214
 error_channel_id = -1002232097214
